@@ -9,7 +9,7 @@ define collectd::plugin::network::listener (
   include collectd::params
   include collectd::plugin::network
 
-  $conf_dir = $collectd::params::plugin_conf_dir
+  $confdir = $collectd::params::plugin_conf_dir
 
   validate_string($name)
   
