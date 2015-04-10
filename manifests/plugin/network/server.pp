@@ -15,12 +15,9 @@ define collectd::plugin::network::server (
 
   validate_string($name)
 
-  file { "${conf_dir}/network-server-${name}.conf":
-    ensure  => $ensure,
-    mode    => '0640',
-    owner   => 'root',
-    group   => $collectd::params::root_group,
-    content => template('collectd/plugin/network/server.conf.erb'),
-    notify  => Service['collectd'],
+  concat::fragment { "collectd-network-server-${name}":
+     order   => '10',
+     target  => "${confdir}/network-servers.conf",
+     content => template('collectd/plugin/network/server.conf.erb'),
   }
 }

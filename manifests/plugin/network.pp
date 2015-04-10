@@ -9,6 +9,11 @@ class collectd::plugin::network (
   $listeners     = { },
   $servers       = { },
 ) {
+
+  include collectd::params
+  
+  $confdir = $collectd::params::plugin_conf_dir
+  
   if $timetolive {
     validate_re($timetolive, '[0-9]+')
   }
@@ -24,6 +29,30 @@ class collectd::plugin::network (
   $defaults = {
     'ensure' => $ensure
   }
+  
+  concat { [
+        "${confdir}/network-servers.conf",
+        "${confdir}/network-listeners.conf",
+        ]:
+		mode    => '0640',
+		owner   => 'root',
+		group   => $collectd::params::root_group,
+        require => Package['collectd'],
+        notify  => Service['collectd'],
+    }
+
+    concat::fragment { 'collectd-network-servers-header':
+        order   => '00',
+        target  => "${confdir}/network-servers.conf",
+        content => "# This file is managed by puppet - changes will be lost\n",
+    }
+
+    concat::fragment { 'collectd-network-listeners-header':
+        order   => '00',
+        target  => "${confdir}/network-listeners.conf",
+        content => "# This file is managed by puppet - changes will be lost\n",
+    }	
+	
   create_resources(collectd::plugin::network::listener, $listeners, $defaults)
   create_resources(collectd::plugin::network::server, $servers, $defaults)
 }
